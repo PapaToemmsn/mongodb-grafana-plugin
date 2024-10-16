@@ -1,3 +1,4 @@
+#build stage
 # Use the official Node.js image as base
 FROM node:20-alpine
 
@@ -13,11 +14,14 @@ RUN npm install
 # Copy the rest of the application code
 COPY . .
 
-# Expose port 4000 to the outside world
-EXPOSE 4000
-ENV PORT=4000
-
-# Command to run the application
+# runtime stage
+FROM alpine:3.20
+RUN apk add --update nodejs
+RUN addgroup -S node && adduser -S node -G node
+USER node
+RUN mkdir /home/node/code
+WORKDIR /home/node/code
+COPY --from=0 --chown=node:node /usr/src/app .
 CMD ["node", "index.mjs"]
 
 LABEL version="1.0"
